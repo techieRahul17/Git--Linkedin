@@ -2,14 +2,28 @@ document.getElementById("fetch-btn").addEventListener("click", async () => {
     const githubUser = document.getElementById("github-username").value.trim();
     if (!githubUser) return alert("Enter a GitHub username!");
 
+    const avatarImg = document.getElementById("github-avatar");
     const projectsDiv = document.getElementById("projects");
     projectsDiv.innerHTML = "⏳ Fetching repositories...";
 
     try {
+        // Fetch user data for avatar
+        const userResponse = await fetch(`https://api.github.com/users/${githubUser}`);
+        if (!userResponse.ok) throw new Error("GitHub user not found");
+        const userData = await userResponse.json();
+
+        // Display avatar
+        if (avatarImg) {
+            avatarImg.src = userData.avatar_url;
+            avatarImg.alt = `${githubUser}'s Avatar`;
+            avatarImg.style.display = "block";
+        }
+
+        // Fetch repositories
         const response = await fetch(`https://api.github.com/users/${githubUser}/repos`);
         const repos = await response.json();
 
-        if (repos.length === 0) {
+        if (!repos || repos.length === 0) {
             projectsDiv.innerHTML = "❌ No repositories found.";
             return;
         }
@@ -21,43 +35,51 @@ document.getElementById("fetch-btn").addEventListener("click", async () => {
             project.innerHTML = `
                 <h3>${repo.name}</h3>
                 <p>${repo.description || "No description"}</p>
-                <button>Add to LinkedIn</button>
+                <button class="generate-btn">Generate</button>
+                <div class="gemini-fields" style="display:none;"></div>
             `;
 
-            project.querySelector("button").addEventListener("click", async () => {
+            project.querySelector(".generate-btn").addEventListener("click", async () => {
+                const btn = project.querySelector(".generate-btn");
+                btn.disabled = true;
+                btn.textContent = "Generating...";
+                const fieldsDiv = project.querySelector(".gemini-fields");
+                fieldsDiv.style.display = "block";
+                fieldsDiv.innerHTML = "<span>⏳ Generating with Gemini...</span>";
                 try {
-                    const rewritten = await rewriteWithGemini(repo.description || repo.name);
-                    alert(`Rewritten description: ✨ ${rewritten}`);
+                    // Fetch README content
+                    let readme = '';
+                    try {
+                        const readmeRes = await fetch(`https://api.github.com/repos/${repo.owner.login}/${repo.name}/readme`);
+                        if (readmeRes.ok) {
+                            const readmeData = await readmeRes.json();
+                            if (readmeData.content) {
+                                readme = atob(readmeData.content.replace(/\n/g, ''));
+                            }
+                        }
+                    } catch (e) { /* ignore */ }
 
-                    // Inject into LinkedIn page
-                    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-                        chrome.scripting.executeScript({
-                            target: { tabId: tabs[0].id },
-                            func: (title, desc) => {
-                                function fillFields(retry = 0) {
-                                    const titleInput = document.querySelector("input[aria-label='Project name']");
-                                    const descTextarea = document.querySelector("textarea[aria-label='Description']");
-
-                                    if (titleInput && descTextarea) {
-                                        titleInput.value = title;
-                                        descTextarea.value = desc;
-                                        console.log("✅ LinkedIn fields filled");
-                                    } else if (retry < 10) { // Retry up to 10 times
-                                        console.log(`⏳ Fields not found, retrying (${retry + 1})...`);
-                                        setTimeout(() => fillFields(retry + 1), 500);
-                                    } else {
-                                        alert("❌ LinkedIn fields not found.");
-                                    }
-                                }
-                                fillFields();
-                            },
-                            args: [repo.name, rewritten]
+                    const geminiFields = await rewriteWithGemini(readme || repo.description || repo.name);
+                    fieldsDiv.innerHTML = `
+                        <div class="field-row"><span class="field-label">Title:</span> <span class="field-value" id="title">${repo.name || "-"}</span> <button class="copy-btn" data-field="title">Copy</button></div>
+                        <div class="field-row"><span class="field-label">Skills:</span> <span class="field-value" id="skills">${geminiFields.Skills || "-"}</span> <button class="copy-btn" data-field="skills">Copy</button></div>
+                        <div class="field-row"><span class="field-label">Summary:</span> <span class="field-value" id="summary" style="white-space:normal;">${geminiFields.Summary || "-"}</span> <button class="copy-btn" data-field="summary">Copy</button></div>
+                    `;
+                    fieldsDiv.querySelectorAll('.copy-btn').forEach(copyBtn => {
+                        copyBtn.addEventListener('click', (e) => {
+                            const field = e.target.getAttribute('data-field');
+                            const value = fieldsDiv.querySelector(`#${field}`).textContent;
+                            navigator.clipboard.writeText(value);
+                            e.target.textContent = 'Copied!';
+                            setTimeout(() => e.target.textContent = 'Copy', 1000);
                         });
                     });
                 } catch (err) {
-                    console.error("Error adding project to LinkedIn:", err);
-                    alert("❌ Failed to add project to LinkedIn");
+                    console.error("Gemini API Error:", err);
+                    fieldsDiv.innerHTML = `<span style='color:#ff6b6b;'>❌ Failed to generate fields</span>`;
                 }
+                btn.disabled = false;
+                btn.textContent = "Generate";
             });
 
             projectsDiv.appendChild(project);
@@ -68,10 +90,10 @@ document.getElementById("fetch-btn").addEventListener("click", async () => {
     }
 });
 
-async function rewriteWithGemini(originalDesc) {
+async function rewriteWithGemini(readmeText) {
     return new Promise((resolve, reject) => {
         chrome.runtime.sendMessage(
-            { action: "rewriteWithGemini", text: originalDesc },
+            { action: "rewriteWithGemini", text: readmeText },
             (response) => {
                 if (chrome.runtime.lastError) {
                     console.error("Runtime error:", chrome.runtime.lastError.message);

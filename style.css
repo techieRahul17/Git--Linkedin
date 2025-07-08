@@ -1,49 +1,171 @@
 body {
     font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
-    color: #333;
-    padding: 15px;
-    width: 300px;
+    background: linear-gradient(135deg, #141e30, #243b55);
+    color: #e0e6ed;
+    padding: 0;
+    margin: 0;
+    min-height: 400px;
+    width: 540px;
+}
+
+.container {
+    padding: 28px;
 }
 
 h1 {
     text-align: center;
-    color: #fff;
-    font-size: 1.4rem;
-    margin-bottom: 10px;
+    color: #00c6fb;
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+label {
+    color: #b0b8c1;
+    font-size: 1rem;
+    margin-bottom: 6px;
+    display: block;
 }
 
 input, button {
     width: 100%;
-    padding: 10px;
+    padding: 11px;
     margin-top: 8px;
     border: none;
-    border-radius: 6px;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s ease-in-out;
 }
 
 input {
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    background: #23272f;
+    color: #e0e6ed;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 12px;
 }
 
 button {
-    background: #0077b5;
+    background: linear-gradient(90deg, #0072ff 0%, #00c6fb 100%);
     color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.5px;
     cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 10px rgba(0,198,251,0.3);
 }
 
-button:hover {
-    background: #005f8c;
+button:hover, .copy-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0,198,251,0.25);
 }
 
 .project-card {
-    background: #fff;
-    border-radius: 6px;
-    margin: 8px 0;
-    padding: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    background: linear-gradient(120deg, #1c1f26 50%, #2c3e50 100%);
+    border-radius: 16px;
+    margin: 24px 0;
+    padding: 24px 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    color: #e0e6ed;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.project-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
 }
 
 .project-card h3 {
-    margin: 0 0 5px;
-    font-size: 1rem;
+    margin: 0 0 6px;
+    font-size: 1.2rem;
+    color: #00c6fb;
+    font-weight: 600;
+}
+
+.project-card p {
+    margin: 0 0 10px;
+    color: #b0b8c1;
+    font-size: 0.95rem;
+}
+
+.gemini-fields {
+    margin-top: 14px;
+    background: #181a20;
+    border-radius: 10px;
+    padding: 14px;
+    box-shadow: 0 2px 12px rgba(0,198,251,0.08);
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.field-row {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 18px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.field-label {
+    min-width: 100px;
+    color: #00c6fb;
+    font-weight: 500;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+}
+
+.field-value {
+    flex: 1;
+    color: #e0e6ed;
+    font-size: 1.05rem;
+    word-break: break-word;
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+
+.summary-container {
+    background: #23272f;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 10px 0;
+    box-shadow: 0 3px 12px rgba(0,198,251,0.1);
+}
+
+.summary-text {
+    font-size: 1.08rem;
+    color: #e0e6ed;
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+.copy-btn {
+    background: #2c3e50;
+    color: #00c6fb;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.copy-btn:active {
+    background: #00c6fb;
+    color: #23272f;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    background: #23272f;
+}
+::-webkit-scrollbar-thumb {
+    background: #2c5364;
+    border-radius: 8px;
 }
