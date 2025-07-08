@@ -64,6 +64,9 @@
 - The extension only works with public repositories.
 - AI project description rewriting uses Gemini API—replace the placeholder API key in `background.js` with your own for production use.
 
+## Author
+- Rahul V S
+
 ## Contributing
 
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
@@ -71,3 +74,5 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 ## License
 
 [Specify your license here if applicable]
+
+##Designed AND Developed by Rahul V S
