@@ -1,6 +1,8 @@
+
 document.getElementById("fetch-btn").addEventListener("click", async () => {
     const githubUser = document.getElementById("github-username").value.trim();
     if (!githubUser) return alert("Enter a GitHub username!");
+
 
     const avatarImg = document.getElementById("github-avatar");
     const projectsDiv = document.getElementById("projects");
@@ -64,7 +66,8 @@ document.getElementById("fetch-btn").addEventListener("click", async () => {
                         <div class="field-row"><span class="field-label">Title:</span> <span class="field-value" id="title">${repo.name || "-"}</span> <button class="copy-btn" data-field="title">Copy</button></div>
                         <div class="field-row"><span class="field-label">Skills:</span> <span class="field-value" id="skills">${geminiFields.Skills || "-"}</span> <button class="copy-btn" data-field="skills">Copy</button></div>
                         <div class="field-row"><span class="field-label">Summary:</span> <span class="field-value" id="summary" style="white-space:normal;">${geminiFields.Summary || "-"}</span> <button class="copy-btn" data-field="summary">Copy</button></div>
-                    `;
+                        <div class="field-row"><button class="copy-all-btn">📋 Copy Whole Thing</button></div>
+                        `;
                     fieldsDiv.querySelectorAll('.copy-btn').forEach(copyBtn => {
                         copyBtn.addEventListener('click', (e) => {
                             const field = e.target.getAttribute('data-field');
@@ -74,6 +77,21 @@ document.getElementById("fetch-btn").addEventListener("click", async () => {
                             setTimeout(() => e.target.textContent = 'Copy', 1000);
                         });
                     });
+
+                    fieldsDiv.querySelector(".copy-all-btn").addEventListener("click", () => {
+                        const title = fieldsDiv.querySelector("#title").textContent;
+                        const skills = fieldsDiv.querySelector("#skills").textContent;
+                        const summary = fieldsDiv.querySelector("#summary").textContent;
+                        
+                        const fullText = `Title: ${title}\nSkills: ${skills}\nSummary: ${summary}`;
+                        navigator.clipboard.writeText(fullText);
+
+                        const btn = fieldsDiv.querySelector(".copy-all-btn");
+                        btn.textContent = "Copied All!";
+                        setTimeout(() => btn.textContent = "📋 Copy Whole Thing", 1000);
+                    });
+                    
+
                 } catch (err) {
                     console.error("Gemini API Error:", err);
                     fieldsDiv.innerHTML = `<span style='color:#ff6b6b;'>❌ Failed to generate fields</span>`;
@@ -87,6 +105,12 @@ document.getElementById("fetch-btn").addEventListener("click", async () => {
     } catch (err) {
         console.error(err);
         projectsDiv.innerHTML = "❌ Error fetching repositories.";
+    }
+});
+
+document.getElementById("github-username").addEventListener("keydown",(e)=>{
+    if(e.key=="Enter"){
+        document.getElementById("fetch-btn").click();
     }
 });
 
